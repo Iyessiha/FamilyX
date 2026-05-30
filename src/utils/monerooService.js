@@ -1,18 +1,18 @@
 // src/utils/monerooService.js
-// Frontend service — calls our Vercel serverless functions (never Moneroo directly)
+// Frontend → appelle nos fonctions Vercel serverless (jamais Moneroo directement)
 
 const API_BASE = import.meta.env.VITE_API_BASE || ''
 
-// ── Initialize a payment ──────────────────────────────────────────────────────
+// ── Initialiser un paiement ───────────────────────────────────────────────────
 export async function initPayment({ user, plan, billing }) {
-  const amount = billing === 'yearly'
-    ? plan.price.yearly * 100   // Moneroo uses smallest unit (centimes)
-    : plan.price.monthly * 100
+  // XOF = pas de centimes (devise sans décimales)
+  // Moneroo sandbox accepte le montant tel quel en XOF
+  const amount = billing === 'yearly' ? plan.price.yearly : plan.price.monthly
 
   const body = {
     amount,
     currency: 'XOF',
-    description: `FamilyX ${plan.name} — ${billing === 'yearly' ? 'Annuel' : 'Mensuel'}`,
+    description: `FamilyX ${plan.name} — Abonnement ${billing === 'yearly' ? 'Annuel' : 'Mensuel'}`,
     customer: {
       email: user.email,
       firstName: user.name?.split(' ')[0] || 'Client',
@@ -36,7 +36,7 @@ export async function initPayment({ user, plan, billing }) {
   return data // { paymentId, checkoutUrl }
 }
 
-// ── Verify a payment ──────────────────────────────────────────────────────────
+// ── Vérifier un paiement ──────────────────────────────────────────────────────
 export async function verifyPayment(paymentId) {
   const res = await fetch(`${API_BASE}/api/payment-verify?paymentId=${paymentId}`)
   const data = await res.json()
@@ -44,7 +44,7 @@ export async function verifyPayment(paymentId) {
   return data // { status, amount, currency, metadata }
 }
 
-// ── Parse return URL params after redirect ────────────────────────────────────
+// ── Parser les params de retour après redirect ────────────────────────────────
 export function parsePaymentReturn() {
   const params = new URLSearchParams(window.location.search)
   return {
@@ -56,7 +56,7 @@ export function parsePaymentReturn() {
   }
 }
 
-// ── Supported payment methods by country ─────────────────────────────────────
+// ── Méthodes de paiement par pays ─────────────────────────────────────────────
 export const MONEROO_METHODS = [
   // Côte d'Ivoire
   { id: 'orange_ci',   label: 'Orange Money CI',  emoji: '🟠', country: 'CI', currency: 'XOF' },
@@ -81,7 +81,7 @@ export const MONEROO_METHODS = [
 ]
 
 export const COUNTRY_LABELS = {
-  CI: '🇨🇮 Côte d\'Ivoire',
+  CI: "🇨🇮 Côte d'Ivoire",
   SN: '🇸🇳 Sénégal',
   CM: '🇨🇲 Cameroun',
   BF: '🇧🇫 Burkina Faso',

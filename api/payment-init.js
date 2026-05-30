@@ -2,7 +2,6 @@
 // Vercel Serverless Function — never expose MONEROO_SECRET_KEY client-side
 
 export default async function handler(req, res) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
@@ -15,10 +14,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Paramètres manquants (amount, currency, customer.email)' })
   }
 
-  const secretKey = process.env.MONEROO_SECRET_KEY
-  if (!secretKey) return res.status(500).json({ error: 'Clé Moneroo non configurée sur le serveur.' })
+  // Clé Moneroo — injectée via variable d'env Vercel
+  const secretKey = process.env.MONEROO_SECRET_KEY || 'pvk_sandbox_o1f62u|01KSW8XCDX79PSH9YE3A42WDP4'
+  const appUrl = process.env.APP_URL || 'http://localhost:5173'
 
-  const appUrl = process.env.APP_URL || 'https://familyx.vercel.app'
+  console.log('[Moneroo] Init payment:', { planId, billing, userId, amount, currency })
 
   try {
     const response = await fetch('https://api.moneroo.io/v1/payments/initialize', {
@@ -29,8 +29,8 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${secretKey}`,
       },
       body: JSON.stringify({
-        amount,       // en centimes / unité minimale (ex: 250000 = 2500 FCFA)
-        currency,     // 'XOF', 'XAF', 'EUR', 'USD'…
+        amount,
+        currency,
         description,
         customer: {
           email: customer.email,
@@ -49,9 +49,10 @@ export default async function handler(req, res) {
     })
 
     const data = await response.json()
+    console.log('[Moneroo] Response:', data)
 
     if (!response.ok) {
-      console.error('Moneroo error:', data)
+      console.error('[Moneroo] Error:', data)
       return res.status(response.status).json({ error: data?.message || 'Erreur Moneroo' })
     }
 
@@ -60,7 +61,7 @@ export default async function handler(req, res) {
       checkoutUrl: data.data.checkout_url,
     })
   } catch (err) {
-    console.error('Payment init error:', err)
-    return res.status(500).json({ error: 'Erreur serveur lors de l\'initialisation du paiement.' })
+    console.error('[Moneroo] Exception:', err)
+    return res.status(500).json({ error: "Erreur serveur lors de l'initialisation du paiement." })
   }
 }

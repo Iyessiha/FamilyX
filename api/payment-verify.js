@@ -8,8 +8,7 @@ export default async function handler(req, res) {
   const { paymentId } = req.query
   if (!paymentId) return res.status(400).json({ error: 'paymentId requis' })
 
-  const secretKey = process.env.MONEROO_SECRET_KEY
-  if (!secretKey) return res.status(500).json({ error: 'Clé non configurée' })
+  const secretKey = process.env.MONEROO_SECRET_KEY || 'pvk_sandbox_o1f62u|01KSW8XCDX79PSH9YE3A42WDP4'
 
   try {
     const response = await fetch(`https://api.moneroo.io/v1/payments/${paymentId}`, {
