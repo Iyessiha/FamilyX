@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Card, Avatar, Badge, Button, SectionTitle, StatBox, Input } from '../../components/shared/UI'
+import { StoriesBar } from '../../components/shared/Stories'
 
 // ── FAITH HOME ────────────────────────────────────────────────────────────────
 const FAITH_FEED = [
@@ -13,6 +14,9 @@ export function FaithHome({ c, user }) {
 
   return (
     <div className="fade-in">
+      {/* Stories */}
+      <StoriesBar c={c} user={user} />
+
       <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
         <StatBox label="Membres" value="86" icon="🕌" c={c} />
         <StatBox label="Groupes" value="7" icon="📿" c={c} />

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Card, Avatar, Badge, Button, SectionTitle, StatBox } from '../../components/shared/UI'
+import { StoriesBar } from '../../components/shared/Stories'
 
 const FEED = [
   { id: 1, author: 'Grand-mère Marie', roleEmoji: '👵', role: 'Grand-mère', time: 'Il y a 2h', content: 'Retrouvailles au village la semaine prochaine ! Tout le monde est invité 🏡❤️', likes: 14, comments: 6, type: 'status' },
@@ -18,6 +19,9 @@ export default function FamilyHome({ c, user }) {
 
   return (
     <div className="fade-in">
+      {/* Stories */}
+      <StoriesBar c={c} user={user} />
+
       {/* Stats */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
         <StatBox label="Membres" value="10" icon="👨‍👩‍👧" c={c} />

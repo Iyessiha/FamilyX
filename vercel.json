@@ -1,3 +1,11 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "env": {
+    "MONEROO_SECRET_KEY": "@moneroo_secret_key",
+    "MONEROO_PUBLIC_KEY": "@moneroo_public_key",
+    "APP_URL": "@app_url"
+  }
 }
